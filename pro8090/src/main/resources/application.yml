@@ -1,0 +1,6 @@
+server:
+  port: 8090
+rocketmq:
+  name-server: 101.200.201.196:9876
+  producer:
+    group: qiangyuecheng
