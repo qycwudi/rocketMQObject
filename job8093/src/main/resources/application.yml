@@ -1,0 +1,16 @@
+server:
+  port: 8093
+spring:
+  application:
+    name: job
+  datasource:
+    username: root
+    password: qycssg!0
+    url: jdbc:mysql://101.200.201.196:3306/db_design?serverTimezone=GMT%2B8&useSSL=false
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+mybatis-plus:
+  mapper-locations: classpath:static/mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

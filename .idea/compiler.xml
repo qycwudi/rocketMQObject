@@ -7,9 +7,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="pro8090" />
         <module name="design_patterns8092" />
         <module name="con8091" />
+        <module name="job8093" />
+        <module name="pro8090" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
