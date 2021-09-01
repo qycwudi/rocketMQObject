@@ -11,6 +11,7 @@
     <modules>
         <module>pro8090</module>
         <module>con8091</module>
+        <module>design_patterns8092</module>
     </modules>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

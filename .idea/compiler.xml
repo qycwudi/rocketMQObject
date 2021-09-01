@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="pro8090" />
+        <module name="design_patterns8092" />
         <module name="con8091" />
       </profile>
     </annotationProcessing>
