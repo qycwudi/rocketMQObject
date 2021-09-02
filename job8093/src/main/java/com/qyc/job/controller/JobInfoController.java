@@ -101,4 +101,18 @@ public class JobInfoController {
         return r;
     }
 
+    /**
+     * 获取注册的JOB
+    */
+    @RequestMapping("getAllJob")
+    public R getAllJob(){
+        List<JobInfo> list = jobInfoService.showAllJob();
+        for (JobInfo job :
+                list) {
+            System.out.println(job);
+        }
+        R r = new R();
+        return r;
+    }
+
 }

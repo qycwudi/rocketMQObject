@@ -5,8 +5,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qyc.job.bean.JobInfo;
 import com.qyc.job.mapper.JobInfoMapper;
 import com.qyc.job.service.JobInfoService;
+import com.qyc.job.util.QuartzManager;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Queue;
 
@@ -17,6 +23,12 @@ import java.util.Queue;
  */
 @Service
 public class JobInfoServiceImpl extends ServiceImpl<JobInfoMapper, JobInfo> implements JobInfoService {
+
+    @Resource
+    private QuartzManager quartzManager;
+
+    @Autowired
+    private Scheduler scheduler;
 
     @Override
     public List<JobInfo> showList() {
@@ -47,6 +59,24 @@ public class JobInfoServiceImpl extends ServiceImpl<JobInfoMapper, JobInfo> impl
 
     @Override
     public int push(JobInfo job) {
-        return 0;
+        try {
+            scheduler.triggerJob(new JobKey(job.getJobName(),job.getJobGroup()));
+            return 1;
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+
+    @Override
+    public List<JobInfo> showAllJob() {
+        try {
+            List<JobInfo> allJob = quartzManager.getAllJob();
+            return allJob;
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

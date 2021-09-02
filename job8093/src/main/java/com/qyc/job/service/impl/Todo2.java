@@ -13,11 +13,8 @@ import java.util.Date;
  * @date: 2021/9/2 12:51 上午
  */
 @Service
-public class Todo2 implements Job {
-
-
-    @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        System.out.println("todo2:" + new Date());
+public class Todo2{
+    public void todo22(){
+        System.out.println("todo22:" + new Date());
     }
 }

@@ -12,22 +12,32 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * @description:
+ * @description: Spring与Quartz集成使用的是SchedulerFactoryBean
  * @author: qiangyuecheng
  * @date: 2021/9/1 5:03 下午
  */
 @Configuration
 public class JobConfig {
-    @Autowired
-    private JobFactory jobFactory;
 
+
+
+    /**
+     * 原理:
+     * https://blog.csdn.net/pengjunlee/article/details/78965877
+    */
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean() {
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
         try {
-            schedulerFactoryBean.setOverwriteExistingJobs(true);
             schedulerFactoryBean.setQuartzProperties(quartzProperties());
-            schedulerFactoryBean.setJobFactory(jobFactory);
+            schedulerFactoryBean.setSchedulerName("qiangyuechengScheduler");
+            // 延时启动
+            schedulerFactoryBean.setStartupDelay(1);
+            // 可选，QuartzScheduler
+            // 启动时更新己存在的Job，这样就不用每次修改targetObject后删除qrtz_job_details表对应记录了
+            schedulerFactoryBean.setOverwriteExistingJobs(true);
+            // 设置自动启动，默认为true
+            schedulerFactoryBean.setAutoStartup(true);
         } catch (Exception e) {
             e.printStackTrace();
         }

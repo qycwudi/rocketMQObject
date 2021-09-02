@@ -64,4 +64,13 @@ public class JobInfo implements Serializable {
     */
     private Date updateTime;
 
+    /**
+     * 支持并发
+    */
+    private String  concurrent;
+
+    /**
+     * 执行方法
+    */
+    private String methodName;
 }

@@ -16,4 +16,5 @@ public interface JobInfoService {
     int stopNow(JobInfo jobInfo);
     int addJob(JobInfo jobInfo);
     int push(JobInfo job);
+    List<JobInfo> showAllJob();
 }

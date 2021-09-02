@@ -20,13 +20,13 @@ public class TaskServer {
     private QuartzManager quartzmanager;
     @Resource
     private JobInfoService jobInfoService;
-    public void initSchedule(){
+
+    public void initSchedule() {
         List<JobInfo> list = jobInfoService.showList();
-        for (JobInfo job:list
-             ) {
-            if(job.getJobStatus().equals("运行中")){
-                quartzmanager.addJob(job);
-            }
+        for (JobInfo job : list
+        ) {
+            //加载全部job
+            quartzmanager.addJob(job);
         }
 
     }
