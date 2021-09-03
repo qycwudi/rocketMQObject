@@ -26,7 +26,12 @@ public abstract class JobServer implements Job {
     }
 
     private void after(JobInfo job){
-        SysJobLogServiceImpl log = (SysJobLogServiceImpl) SpringIOCUtil.getBean("sysJobLogServiceImpl");
+        SysJobLogServiceImpl log = null;
+        try {
+            log = (SysJobLogServiceImpl) SpringIOCUtil.getBean("sysJobLogServiceImpl");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Date startTime = threadLocal.get();
         threadLocal.remove();
         SysJobLog sysJobLog = new SysJobLog();
@@ -35,9 +40,14 @@ public abstract class JobServer implements Job {
         sysJobLog.setJobGroup(job.getJobGroup());
         sysJobLog.setJobName(job.getJobName());
         sysJobLog.setInvokeTarget(job.getMethodName());
+        sysJobLog.setJobMessage("运行正常");
         log.insertLog(sysJobLog);
-        JobWebSocketServer socketServer = (JobWebSocketServer) SpringIOCUtil.getBean("jobWebSocketServer");
-        System.out.println("socketServer发送消息");
+        JobWebSocketServer socketServer = null;
+        try {
+            socketServer = (JobWebSocketServer) SpringIOCUtil.getBean("jobWebSocketServer");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         socketServer.sendMessageToAll(JSONUtil.toJsonStr(log.select10Log().get(0)));
 
     }

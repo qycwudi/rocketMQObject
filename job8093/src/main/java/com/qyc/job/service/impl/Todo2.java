@@ -15,6 +15,6 @@ import java.util.Date;
 @Service
 public class Todo2{
     public void todo22(){
-        System.out.println("todo22:" + new Date());
+        System.out.println("---todo22:" + new Date());
     }
 }

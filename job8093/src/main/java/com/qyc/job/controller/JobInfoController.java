@@ -55,7 +55,7 @@ public class JobInfoController {
     }
 
     /**
-     * 启动
+     * 恢复启动
     */
     @RequestMapping("start")
     public R start(@RequestBody JobInfo job){

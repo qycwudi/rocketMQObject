@@ -3,6 +3,7 @@ package com.qyc.job.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qyc.job.bean.JobInfo;
+import com.qyc.job.enums.StatusEnum;
 import com.qyc.job.mapper.JobInfoMapper;
 import com.qyc.job.service.JobInfoService;
 import com.qyc.job.util.QuartzManager;
@@ -39,17 +40,48 @@ public class JobInfoServiceImpl extends ServiceImpl<JobInfoMapper, JobInfo> impl
     @Override
     public int updateJob(JobInfo jobInfo) {
         int i = baseMapper.updateById(jobInfo);
+        try {
+            if(scheduler.checkExists(getJobKey(jobInfo))){
+                scheduler.deleteJob(getJobKey(jobInfo));
+            }
+            quartzManager.addJob(jobInfo);
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+        return i;
+    }
+
+
+
+    /**
+     * 恢复job
+    */
+    @Override
+    public int startNow(JobInfo jobInfo){
+        JobInfo job = baseMapper.selectById(jobInfo);
+        job.setJobStatus(StatusEnum.RUN.getInfo());
+        try {
+            scheduler.resumeJob(getJobKey(job));
+            job.setDescription("运行正常");
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+        int i= baseMapper.updateById(job);
         return i;
     }
 
     @Override
-    public int startNow(JobInfo jobInfo) {
-        return 0;
-    }
-
-    @Override
     public int stopNow(JobInfo jobInfo) {
-        return 0;
+        JobInfo job = baseMapper.selectById(jobInfo);
+        job.setJobStatus(StatusEnum.STOP.getInfo());
+        try {
+            job.setDescription("停止运行");
+            scheduler.pauseJob(getJobKey(job));
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+        int i= baseMapper.updateById(job);
+        return i;
     }
 
     @Override
@@ -60,7 +92,7 @@ public class JobInfoServiceImpl extends ServiceImpl<JobInfoMapper, JobInfo> impl
     @Override
     public int push(JobInfo job) {
         try {
-            scheduler.triggerJob(new JobKey(job.getJobName(),job.getJobGroup()));
+            scheduler.triggerJob(getJobKey(job));
             return 1;
         } catch (SchedulerException e) {
             e.printStackTrace();
@@ -78,5 +110,8 @@ public class JobInfoServiceImpl extends ServiceImpl<JobInfoMapper, JobInfo> impl
             e.printStackTrace();
             return null;
         }
+    }
+    private JobKey getJobKey(JobInfo jobInfo) {
+        return new JobKey(jobInfo.getJobName(),jobInfo.getJobGroup());
     }
 }

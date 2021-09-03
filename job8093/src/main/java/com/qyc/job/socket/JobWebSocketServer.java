@@ -43,7 +43,7 @@ public class JobWebSocketServer {
      */
     @OnClose
     public void onClose(Session session) {
-        onlineSessions.remove(this);
+        onlineSessions.remove(session.getId());
     }
 
     /**
@@ -58,13 +58,18 @@ public class JobWebSocketServer {
      * 公共方法：发送信息给所有人
      */
     public void sendMessageToAll(String msg) {
-        onlineSessions.forEach((id, session) -> {
-            try {
-                System.out.println("发送信息");
-                session.getBasicRemote().sendText(msg);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        /**
+         * 加锁原因:多个线程同时调用
+         * The remote endpoint was in state [TEXT_FULL_WRITING] which is an invalid state for called method
+        */
+        synchronized (this){
+            onlineSessions.forEach((id, session) -> {
+                try {
+                    session.getBasicRemote().sendText(msg);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 }

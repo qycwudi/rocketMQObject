@@ -24,9 +24,9 @@ public class Todo1 {
 
     public void todo11() {
         List<JobInfo> list = jobInfoService.showList();
-        System.out.println("todo11");
+        System.out.println("-todo11");
     }
     public void todo12() {
-        System.out.println("todo12");
+        System.out.println("--todo12");
     }
 }

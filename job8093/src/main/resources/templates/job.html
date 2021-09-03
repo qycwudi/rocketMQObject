@@ -62,16 +62,18 @@
     //第一个实例
     table.render({
       elem: '#demo'
-      ,height: 400
+      ,height: 200
       ,url: '/job/showJobList'
       ,page: true //开启分页
-      ,cols: [ [ //表头™
+      ,cols: [ [
          {field: 'id', title: 'ID', width:80, sort: true, fixed: 'left'}
         ,{field: 'jobName', title: '任务名', width:180, edit: 'text'}
         ,{field: 'description', title: '任务描述', width:180, edit: 'text'}
         ,{field: 'cronExpression', title: 'cron表达式', width:180, edit: 'text'}
-        ,{field: 'beanClass', title: '任务方法', width:180, edit: 'text'}
+        ,{field: 'beanClass', title: '任务服务', width:180, edit: 'text'}
+        ,{field: 'methodName', title: '任务方法', width:180, edit: 'text'}
         ,{field: 'jobStatus', title: '任务状态', width:180, edit: 'text'}
+        ,{field: 'concurrent', title: '并发支持', width:180, edit: 'text'}
         ,{field: 'jobGroup', title: '任务分组', width:180, edit: 'text'}
         ,{fixed: 'right', width:178, align:'center', toolbar: '#barDemo'}
       ] ]
@@ -193,7 +195,7 @@
         var message = JSON.parse(event.data) || {};
         var $messageContainer = $('#mess');
           $messageContainer.prepend(
-                  '<li>' + message.jobName+"--"+ util.toDateString(message.createTime, "yyyy-MM-dd HH:mm:ss") +"--"+ message.execution + '</li>');
+                  '<li>' + message.jobName+"--"+ util.toDateString(message.createTime, "yyyy-MM-dd HH:mm:ss") +"--"+ message.execution + message.jobMessage + '</li>');
       };
 
       /**

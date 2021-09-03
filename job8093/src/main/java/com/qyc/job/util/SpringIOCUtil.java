@@ -24,14 +24,9 @@ public final class SpringIOCUtil implements ApplicationContextAware {
         SpringIOCUtil.applicationContext = applicationContext;
     }
 
-    public static Object getBean(String beanName) {
+    public static Object getBean(String beanName)throws Exception {
         Object object = null;
-        try {
             object = applicationContext.getBean(beanName);
-        } catch (Exception e) {
-            System.out.println("没有找到");
-        } finally {
             return object;
-        }
     }
 }

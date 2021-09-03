@@ -1,12 +1,18 @@
 package com.qyc.job.util;
 
+import cn.hutool.json.JSONUtil;
 import com.qyc.job.bean.JobInfo;
+import com.qyc.job.bean.SysJobLog;
 import com.qyc.job.enums.ConcurrentEnum;
 import com.qyc.job.enums.ScheduleConstants;
 import com.qyc.job.enums.StatusEnum;
 import com.qyc.job.job.ConcurrentExecution;
 import com.qyc.job.job.Execution;
+import com.qyc.job.service.SysJobSysService;
+import com.qyc.job.service.impl.JobInfoServiceImpl;
+import com.qyc.job.service.impl.SysJobLogServiceImpl;
 import com.qyc.job.service.impl.Todo1;
+import com.qyc.job.socket.JobWebSocketServer;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +21,14 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 /**
- * @description:
+ * @description: job管理器
  * @author: qiangyuecheng
  * @date: 2021/9/2 12:45 上午
  */
@@ -42,7 +50,6 @@ public class QuartzManager {
             // 创建jobDetail实例，绑定Job实现类
             // 指明job的名称，所在组的名称，以及绑定job类
             Class<? extends Job> jobClass = getQuartzJobClass(task);
-            System.out.println("jobClass.getName:"+jobClass.getName());
             JobKey jobKey = JobKey.jobKey(task.getJobName(), task.getJobGroup());
             // 任务名称和组构成任务key
             JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(task.getJobName(), task.getJobGroup()).build();
@@ -64,7 +71,7 @@ public class QuartzManager {
             // 启动
             if (!scheduler.isShutdown()&& StatusEnum.RUN.getInfo().equals(task.getJobStatus())) {
                 System.out.println("启动:"+task);
-//                scheduler.start();
+//              scheduler.start();
             }else {
                 //暂停
                 System.out.println("暂停:"+task);
@@ -109,17 +116,22 @@ public class QuartzManager {
      * 执行方法
     */
     public static void invokeMethod(JobInfo jobInfo){
-        System.out.println("开始执行:"+jobInfo.getJobName());
         //获取加载的bean实例  暂不支持带参数
         String beanName = jobInfo.getBeanClass();
         String methodName = jobInfo.getMethodName();
-        Object bean = SpringIOCUtil.getBean(beanName);
-        System.out.println("获取bean:"+bean);
+        Object bean = null;
+        try {
+            bean = SpringIOCUtil.getBean(beanName);
+        } catch (Exception e) {
+            recordErrorLog(jobInfo,"找不到bean");
+            return;
+        }
         try {
             Method method = bean.getClass().getMethod(methodName);
             method.invoke(bean);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            recordErrorLog(jobInfo,"找不到方法:"+methodName);
+            return;
         }
     }
 
@@ -151,6 +163,42 @@ public class QuartzManager {
             }
         }
         return jobList;
+    }
+
+    /**
+     * 执行错误日志
+    */
+    public static void recordErrorLog(JobInfo jobInfo,String mess){
+
+        try {
+            JobInfoServiceImpl job = (JobInfoServiceImpl) SpringIOCUtil.getBean("jobInfoServiceImpl");
+            jobInfo.setDescription("没有找到bean");
+            jobInfo.setJobStatus("停止");
+            job.updateJob(jobInfo);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        SysJobLogServiceImpl log = null;
+        try {
+            log = (SysJobLogServiceImpl) SpringIOCUtil.getBean("sysJobLogServiceImpl");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        SysJobLog sysJobLog = new SysJobLog();
+        sysJobLog.setCreateTime(new Date());
+        sysJobLog.setJobGroup(jobInfo.getJobGroup());
+        sysJobLog.setJobName(jobInfo.getJobName());
+        sysJobLog.setInvokeTarget(jobInfo.getMethodName());
+        sysJobLog.setJobMessage(mess);
+        log.insertLog(sysJobLog);
+        JobWebSocketServer socketServer = null;
+        try {
+            socketServer = (JobWebSocketServer) SpringIOCUtil.getBean("jobWebSocketServer");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        socketServer.sendMessageToAll(JSONUtil.toJsonStr(log.select10Log().get(0)));
     }
 
 }
