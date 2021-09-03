@@ -11,7 +11,9 @@
 <body>
 <!--表单-->
 <table id="demo" lay-filter="test"></table>
+<div id = "mess">
 
+</div>
 <!--日志-->
 <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
   <legend>滚动加载</legend>
@@ -156,7 +158,53 @@
     });
   })
 </script>
+<script>
+  if(typeof(WebSocket) === 'undefined') {
+    console.log("不支持webSock")
+  }else {
+    console.log("支持webSocket")
+    /**
+     * WebSocket客户端
+     *
+     * 使用说明：
+     * 1、WebSocket客户端通过回调函数来接收服务端消息。例如：webSocket.onmessage
+     * 2、WebSocket客户端通过send方法来发送消息给服务端。例如：webSocket.send();
+     */
+      /**
+       * WebSocket客户端 PS：URL开头表示WebSocket协议 中间是域名端口 结尾是服务端映射地址
+       */
+      let websocket = new WebSocket('ws://localhost:8093/job');
+      /**
+       * 当服务端打开连接
+       */
+      websocket.onopen = function (){
+        console.log('连接成功');
+      }
+      websocket.onclose = function (){
+        console.log('连接关闭');
+      }
+      /**
+       * 当服务端发来消息：1.广播消息 2.更新在线人数
+       */
+      var util = layui.util
+      websocket.onmessage = function (event) {
+        console.log('WebSocket收到消息：%c' + event.data, 'color:green');
+        //获取服务端消息
+        var message = JSON.parse(event.data) || {};
+        var $messageContainer = $('#mess');
+          $messageContainer.prepend(
+                  '<li>' + message.jobName+"--"+ util.toDateString(message.createTime, "yyyy-MM-dd HH:mm:ss") +"--"+ message.execution + '</li>');
+      };
 
+      /**
+       * 通信失败
+       */
+      websocket.onerror = function (event) {
+        console.log('WebSocket发生异常');
+
+      };
+  }
+</script>
 
 </body>
 </html>

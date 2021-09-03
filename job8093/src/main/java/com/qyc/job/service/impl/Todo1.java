@@ -25,10 +25,6 @@ public class Todo1 {
     public void todo11() {
         List<JobInfo> list = jobInfoService.showList();
         System.out.println("todo11");
-        for (JobInfo job:list
-             ) {
-            System.out.println(job);
-        }
     }
     public void todo12() {
         System.out.println("todo12");

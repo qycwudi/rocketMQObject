@@ -1,5 +1,7 @@
 package com.qyc.job.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,6 +14,8 @@ import java.util.Date;
  */
 @Data
 public class JobInfo implements Serializable {
+
+    @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
     /**

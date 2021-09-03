@@ -1,5 +1,7 @@
 package com.qyc.job.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,8 +13,9 @@ import java.util.Date;
  * @date: 2021/9/2 6:32 下午
  */
 @Data
-public class SyJobLog implements Serializable {
+public class SysJobLog implements Serializable {
     /** ID */
+    @TableId(value = "job_log_id", type = IdType.ID_WORKER)
     private Long jobLogId;
 
     /** 任务名称 */
@@ -34,8 +37,13 @@ public class SyJobLog implements Serializable {
     private String exceptionInfo;
 
     /** 开始时间 */
-    private Date startTime;
+    private Date createTime;
 
     /** 停止时间 */
     private Date stopTime;
+    
+    /**
+     * 执行时间
+    */
+    private Long execution;
 }
